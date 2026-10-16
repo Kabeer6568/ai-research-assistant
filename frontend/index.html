@@ -4,62 +4,45 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f8fb">
-    <meta
-      name="description"
-      content="Explore research questions and find trusted places to start."
-    >
+    <meta name="description" content="Explore your documents and ask research questions with cited answers.">
     <title>Clarity — Research desk</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/app.js" defer></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/app.js" defer></script>
   </head>
   <body>
     <div class="app-shell">
-      <aside class="sidebar" aria-label="Main navigation">
-        <a class="brand" href="#" aria-label="Clarity research desk home">
-          <span class="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 32 32" fill="none">
-              <path d="M6 22.5 13.5 7l4.2 8.1L21 9l5 13.5H6Z" />
-              <path d="M10 22.5h15" />
-            </svg>
-          </span>
+      <aside class="sidebar" aria-label="Research workspace">
+        <a class="brand" href="/" aria-label="Clarity research desk home">
+          <span class="brand-mark" aria-hidden="true">✳</span>
           <span class="brand-name">clarity<span>.</span></span>
         </a>
-
-        <button class="new-search-button" id="new-search" type="button">
-          <svg viewBox="0 0 20 20" aria-hidden="true">
-            <path d="M10 4v12M4 10h12" />
-          </svg>
+        <button class="new-search-button" id="new-conversation" type="button">
+          <span aria-hidden="true">＋</span>
           <span>New research</span>
-          <span class="shortcut" aria-hidden="true">⌘ K</span>
         </button>
 
         <div class="sidebar-section">
-          <p class="section-label">Workspace</p>
-          <a class="nav-link active" href="#research-form" aria-current="page">
-            <svg viewBox="0 0 20 20" aria-hidden="true">
-              <circle cx="8.7" cy="8.7" r="5.7" />
-              <path d="m13 13 4 4" />
-            </svg>
-            <span>Research desk</span>
-          </a>
+          <p class="section-label">Conversations</p>
+          <ul class="conversation-list" id="conversation-list">
+            <li class="list-empty">Sign in to save your research.</li>
+          </ul>
         </div>
 
-        <div class="sidebar-section recent-section">
-          <div class="recent-heading">
-            <p class="section-label">Recent searches</p>
-            <span class="recent-count" id="recent-count">0</span>
+        <div class="sidebar-section documents-section">
+          <div class="section-heading">
+            <p class="section-label">Your documents</p>
+            <label class="upload-button" for="document-file" title="Upload a PDF">＋</label>
           </div>
-          <ul class="recent-list" id="recent-list" aria-label="Recent searches">
-            <li class="recent-empty">Your searches will show up here.</li>
+          <input id="document-file" class="visually-hidden" type="file" accept="application/pdf,.pdf">
+          <ul class="document-list" id="document-list">
+            <li class="list-empty">Upload PDFs to ask questions about them.</li>
           </ul>
         </div>
 
         <div class="sidebar-bottom">
-          <div class="demo-note">
-            <span class="status-dot" aria-hidden="true"></span>
-            <span>Frontend demo</span>
-          </div>
-          <p class="sidebar-caption">A calmer way to explore big questions.</p>
+          <p class="account-email" id="account-email" hidden></p>
+          <button class="sign-out-button" id="sign-out" type="button" hidden>Sign out</button>
+          <p class="sidebar-caption">Your files stay in your workspace.</p>
         </div>
       </aside>
 
@@ -70,122 +53,62 @@
             <span class="breadcrumb-divider" aria-hidden="true">/</span>
             <span class="breadcrumb-current">Research desk</span>
           </div>
-          <span class="prototype-badge">
-            <span aria-hidden="true"></span>
-            Prototype
-          </span>
+          <span class="prototype-badge"><span aria-hidden="true"></span>Private workspace</span>
         </header>
 
         <div class="content-wrap">
-          <section class="welcome-section" aria-labelledby="page-title">
-            <div class="eyebrow">
-              <span class="eyebrow-line" aria-hidden="true"></span>
-              YOUR RESEARCH, IN FOCUS
-            </div>
-            <h1 id="page-title">Good questions<br>lead <span>somewhere.</span></h1>
-            <p class="welcome-copy">
-              Start with what you’re curious about. We’ll help you find a clear path into the research.
-            </p>
-
-            <form class="research-form" id="research-form">
-              <label class="visually-hidden" for="research-question">What would you like to research?</label>
-              <div class="input-wrap">
-                <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="10.8" cy="10.8" r="6.8" />
-                  <path d="m16 16 4.5 4.5" />
-                </svg>
-                <textarea
-                  id="research-question"
-                  name="question"
-                  rows="2"
-                  maxlength="500"
-                  placeholder="What would you like to research?"
-                  required
-                ></textarea>
-                <span class="input-count" id="input-count">0 / 500</span>
-              </div>
-              <div class="form-footer">
-                <span class="input-hint">Be curious. Start anywhere.</span>
-                <button class="submit-button" type="submit">
-                  <span>Explore question</span>
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M4 10h12M10 4l6 6-6 6" />
-                  </svg>
-                </button>
-              </div>
-              <p class="form-error" id="form-error" role="alert" hidden></p>
+          <section class="auth-view" id="auth-view" aria-labelledby="auth-title">
+            <div class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span>YOUR RESEARCH, IN FOCUS</div>
+            <h1 id="auth-title">Good questions<br>lead <span>somewhere.</span></h1>
+            <p class="welcome-copy">Sign in to upload papers, explore your documents, and keep your research in one place.</p>
+            <form class="auth-form" id="auth-form">
+              <label for="auth-email">Email</label>
+              <input id="auth-email" name="email" type="email" autocomplete="email" required>
+              <label for="auth-password">Password</label>
+              <input id="auth-password" name="password" type="password" minlength="8" maxlength="128" autocomplete="current-password" required>
+              <button class="submit-button auth-submit" id="auth-submit" type="submit">Sign in</button>
+              <p class="form-error" id="auth-error" role="alert" hidden></p>
             </form>
-
-            <div class="suggestions">
-              <div class="suggestions-heading">
-                <span class="suggestion-sparkle" aria-hidden="true">✳</span>
-                <span>Need a place to begin?</span>
-              </div>
-              <div class="suggestion-list">
-                <button class="suggestion-chip" type="button" data-question="How does urban green space affect mental wellbeing?">
-                  <span class="chip-icon green" aria-hidden="true"></span>
-                  Urban green space &amp; wellbeing
-                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 11 6-6M5 5h6v6" /></svg>
-                </button>
-                <button class="suggestion-chip" type="button" data-question="What are the latest advances in solid-state batteries?">
-                  <span class="chip-icon blue" aria-hidden="true"></span>
-                  Advances in solid-state batteries
-                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 11 6-6M5 5h6v6" /></svg>
-                </button>
-                <button class="suggestion-chip" type="button" data-question="How does sleep influence learning and memory?">
-                  <span class="chip-icon violet" aria-hidden="true"></span>
-                  Sleep, learning &amp; memory
-                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 11 6-6M5 5h6v6" /></svg>
-                </button>
-              </div>
-            </div>
+            <p class="auth-switch">
+              <span id="auth-switch-label">New here?</span>
+              <button class="text-button" id="auth-switch" type="button">Create an account</button>
+            </p>
           </section>
 
-          <section class="results-section" id="results" aria-labelledby="results-title" hidden>
-            <div class="results-heading">
-              <div>
-                <p class="results-kicker">YOUR STARTING POINT</p>
-                <h2 id="results-title">Research preview</h2>
-              </div>
-              <button class="text-button" id="edit-question" type="button">
-                <svg viewBox="0 0 18 18" aria-hidden="true">
-                  <path d="m11.8 3.3 2.9 2.9M3 15l3.1-.6L14 6.5a1.6 1.6 0 0 0-2.3-2.3l-7.9 7.9L3 15Z" />
-                </svg>
-                Edit question
-              </button>
+          <section class="workspace-view" id="workspace-view" hidden aria-labelledby="workspace-title">
+            <div class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span>YOUR RESEARCH, IN FOCUS</div>
+            <h1 id="workspace-title">Good questions<br>lead <span>somewhere.</span></h1>
+            <p class="welcome-copy">Ask a question about your uploaded PDFs. Answers are grounded in the passages we find and include source excerpts.</p>
+
+            <div class="workspace-notice" id="workspace-notice" role="status">
+              Upload a text-based PDF to get started. If indexing or answers are unavailable, add your AI provider settings in <code>.env</code>.
             </div>
-            <div class="question-card">
-              <span class="question-mark" aria-hidden="true">Q</span>
-              <p id="submitted-question"></p>
-            </div>
-            <div class="demo-answer">
-              <div class="answer-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1" />
-                  <circle cx="12" cy="12" r="4" />
-                </svg>
+
+            <section class="chat-panel" aria-label="Research conversation">
+              <div class="chat-messages" id="chat-messages" aria-live="polite">
+                <div class="chat-empty" id="chat-empty">
+                  <span class="empty-mark" aria-hidden="true">✳</span>
+                  <h2>What are you curious about?</h2>
+                  <p>Upload one or more PDFs, then ask a question. Answers use your documents, not the open web.</p>
+                </div>
               </div>
-              <div>
-                <h3>Your research path starts here</h3>
-                <p>
-                  This frontend preview doesn’t generate or verify an AI answer yet. Use the research indexes below to explore real papers, or connect an API to add cited answers.
-                </p>
-              </div>
-            </div>
-            <div class="sources-heading">
-              <div>
-                <h3>Explore trusted research indexes</h3>
-                <p>Search your question directly in these scholarly catalogs.</p>
-              </div>
-              <span class="source-count">3 places to start</span>
-            </div>
-            <div class="source-grid" id="source-links"></div>
+              <form class="chat-form" id="chat-form">
+                <label class="visually-hidden" for="chat-question">Ask a research question</label>
+                <textarea id="chat-question" name="question" rows="2" maxlength="5000" placeholder="Ask a question about your documents…" required></textarea>
+                <div class="chat-form-footer">
+                  <span>Answers include excerpts from your uploaded PDFs.</span>
+                  <button class="submit-button" id="chat-submit" type="submit">Ask question <span aria-hidden="true">→</span></button>
+                </div>
+              </form>
+              <p class="form-error" id="chat-error" role="alert" hidden></p>
+            </section>
           </section>
 
+          <div class="toast" id="toast" role="status" hidden></div>
           <footer class="page-footer">
             <span>Built for curious minds.</span>
             <span class="footer-separator" aria-hidden="true">·</span>
-            <span>Take the long way to a good answer.</span>
+            <span>Your documents, your research.</span>
           </footer>
         </div>
       </main>

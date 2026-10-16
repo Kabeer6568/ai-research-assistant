@@ -1,2 +1,3 @@
-def embed_texts(texts: list[str]) -> list[list[float]]:
-    raise NotImplementedError("Configure an embedding provider before indexing documents.")
+from app.services.ai_provider import embed_texts
+
+__all__ = ["embed_texts"]

@@ -9,3 +9,5 @@ class DocumentRead(BaseModel):
     id: int
     filename: str
     created_at: datetime
+    index_status: str
+    index_error: str | None

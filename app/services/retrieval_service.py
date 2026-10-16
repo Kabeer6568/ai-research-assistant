@@ -1,9 +1,16 @@
+from sqlalchemy.orm import Session
+
 from app.services.embedding_service import embed_texts
 from app.services.vector_store import search_chunks
 
 
-def retrieve_context(question: str, owner_id: int, limit: int = 5) -> list[dict[str, object]]:
-    embeddings = embed_texts([question])
+async def retrieve_context(
+    database: Session,
+    question: str,
+    owner_id: int,
+    limit: int = 5,
+) -> list[dict[str, object]]:
+    embeddings = await embed_texts([question])
     if not embeddings:
         return []
-    return search_chunks(embeddings[0], owner_id=owner_id, limit=limit)
+    return search_chunks(database, embeddings[0], owner_id=owner_id, limit=limit)

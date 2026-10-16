@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import AIProviderError
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.conversation import Conversation
@@ -36,9 +37,9 @@ async def chat(
 
     try:
         return await generate_answer(database, current_user.id, conversation.id, payload.question)
-    except NotImplementedError as error:
+    except AIProviderError as error:
         database.rollback()
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Answer generation is not configured yet. Add an embedding and language-model provider.",
+            detail=str(error),
         ) from error

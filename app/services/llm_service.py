@@ -1,2 +1,3 @@
-async def generate_completion(prompt: str) -> str:
-    raise NotImplementedError("Configure a language-model provider before generating answers.")
+from app.services.ai_provider import generate_completion
+
+__all__ = ["generate_completion"]

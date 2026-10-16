@@ -3,7 +3,13 @@ def test_chat_requires_authentication(client):
     assert response.status_code == 401
 
 
-def test_chat_reports_unconfigured_ai_services(client):
+def test_chat_reports_unconfigured_ai_services(client, monkeypatch):
+    from app.config import Settings
+
+    monkeypatch.setattr(
+        "app.services.ai_provider.get_settings",
+        lambda: Settings(ai_base_url=None),
+    )
     client.post(
         "/api/auth/register",
         json={"email": "reader@example.com", "password": "safe-password-123"},

@@ -1,41 +1,65 @@
 # AI Research Assistant
 
-A FastAPI backend foundation with a static research-desk frontend, user accounts,
-PDF upload and extraction, conversation persistence, and clearly isolated RAG
-service interfaces.
+Clarity is a private, document-grounded research workspace. Create an account,
+upload text-based PDFs, and ask questions with answers grounded in retrieved
+excerpts from your own documents.
 
 ## Run locally
 
 1. Create and activate a virtual environment.
 2. Install dependencies: `pip install -r requirements.txt`.
-3. Copy `.env.example` to `.env` and set `SECRET_KEY` to a private random value
-   of at least 32 characters. Keep `.env` out of source control.
-4. Start the API: `uvicorn app.main:app --reload`.
-5. Open `http://localhost:8000/docs` for the API and `frontend/index.html` for
-   the current standalone frontend prototype.
+3. Copy `.env.example` to `.env`.
+4. Set `SECRET_KEY` to a private random value of at least 32 characters and
+   set `AI_API_KEY` for your chosen AI provider. Never commit `.env`.
+5. Start the app: `uvicorn app.main:app --reload`.
+6. Open `http://localhost:8000/`. The interactive API documentation is at
+   `http://localhost:8000/docs`.
 
-The database defaults to a local SQLite file under `data/`. Uploaded PDFs are
-stored under `data/uploads/`; extracted text is associated with the document
-record. Uploads are limited by `MAX_UPLOAD_SIZE_MB`.
+The AI provider must expose the OpenAI-compatible `/embeddings` and
+`/chat/completions` endpoints. `.env.example` is configured for OpenAI. For
+another compatible provider, set `AI_BASE_URL`, `AI_CHAT_MODEL`, and
+`AI_EMBEDDING_MODEL` to values supported by that provider. A local Ollama
+server can be used with its OpenAI-compatible endpoint (commonly
+`http://localhost:11434/v1`); pull an embedding model and a chat model first,
+and leave `AI_API_KEY` empty if the local server does not require one.
 
-## API foundation
+## What it does
 
-- `POST /api/auth/register` and `POST /api/auth/login`
-- `POST /api/documents/upload` and `GET /api/documents/` (bearer token required)
-- `POST /api/conversations/` and `GET /api/conversations/` (bearer token required)
-- `POST /api/chat/` (bearer token required)
+- Email/password registration and bearer-token sign-in.
+- Private PDF upload with size, extension, and signature checks.
+- Text extraction, chunking, and embedding-based indexing.
+- Persistent SQLite vector chunks, scoped to their document owner.
+- Similarity retrieval and answers with source excerpts.
+- Saved conversations with message history, plus document and conversation
+  deletion.
+- One-page frontend served by FastAPI, with upload/reindex status and readable
+  provider configuration errors.
+
+Uploads are limited by `MAX_UPLOAD_SIZE_MB`. The default SQLite database and
+uploaded files live under `data/`. Existing local databases receive additive
+schema updates at startup. For production deployments, use managed database and
+file storage with explicit backups, HTTPS, rate limiting, and reviewed schema
+migrations.
+
+## API
+
+- `POST /api/auth/register`, `POST /api/auth/login`
+- `POST /api/documents/upload`, `GET /api/documents/`
+- `POST /api/documents/{id}/index`, `DELETE /api/documents/{id}`
+- `POST /api/conversations/`, `GET /api/conversations/`
+- `GET /api/conversations/{id}/messages`, `DELETE /api/conversations/{id}`
+- `POST /api/chat/`
 - `GET /health`
 
-Chat deliberately returns HTTP 503 until embedding, vector-store, and language
-model providers are configured in `app/services/`. The current frontend is
-still a prototype and is not yet wired to these API endpoints.
+All document, conversation, and chat routes require a bearer token.
 
 ## Tests
 
-Run `pytest`.
+Run `pytest`. Provider-dependent integration tests stub provider responses and
+do not need an AI API key or internet access.
 
 ## Docker
 
 Build with `docker build -t ai-research-assistant .`, then run with a secure
-`SECRET_KEY` environment variable. Mount `data/` as a persistent volume when
-running the container.
+`SECRET_KEY` and valid AI provider settings. Mount `data/` as a persistent
+volume.
