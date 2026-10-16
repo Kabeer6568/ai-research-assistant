@@ -1,3 +1,4 @@
+from urllib.parse import quote, urlsplit
 from typing import Any
 
 import httpx
@@ -20,12 +21,15 @@ def _provider_config() -> tuple[str, str | None, int]:
     return settings.ai_base_url.rstrip("/"), api_key, settings.ai_timeout_seconds
 
 
-async def _post(endpoint: str, payload: dict[str, Any]) -> dict[str, Any]:
-    base_url, api_key, timeout = _provider_config()
-    headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+async def _post_url(
+    url: str,
+    payload: dict[str, Any],
+    headers: dict[str, str],
+    timeout: int,
+) -> dict[str, Any]:
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
-            response = await client.post(f"{base_url}/{endpoint}", json=payload, headers=headers)
+            response = await client.post(url, json=payload, headers=headers)
             response.raise_for_status()
             result = response.json()
     except (httpx.HTTPError, ValueError) as error:
@@ -37,7 +41,54 @@ async def _post(endpoint: str, payload: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-async def embed_texts(texts: list[str]) -> list[list[float]]:
+async def _post(endpoint: str, payload: dict[str, Any]) -> dict[str, Any]:
+    base_url, api_key, timeout = _provider_config()
+    headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+    return await _post_url(f"{base_url}/{endpoint}", payload, headers, timeout)
+
+
+def _is_gemini_provider(base_url: str) -> bool:
+    return urlsplit(base_url).hostname == "generativelanguage.googleapis.com"
+
+
+async def _embed_with_gemini(texts: list[str], task_type: str) -> list[list[float]]:
+    settings = get_settings()
+    _, api_key, timeout = _provider_config()
+    if not api_key:
+        raise ProviderNotConfiguredError("Set AI_API_KEY in .env to use the Gemini API.")
+    model = f"models/{settings.ai_gemini_embedding_model}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/{model}:batchEmbedContents"
+    payload = {
+        "requests": [
+            {
+                "model": model,
+                "content": {"parts": [{"text": text}]},
+                "taskType": task_type,
+            }
+            for text in texts
+        ]
+    }
+    response = await _post_url(url, payload, {"x-goog-api-key": api_key}, timeout)
+    data = response.get("embeddings")
+    if not isinstance(data, list):
+        raise AIProviderError("Gemini returned no embeddings.")
+    try:
+        embeddings = [[float(value) for value in item["values"]] for item in data]
+    except (KeyError, TypeError, ValueError) as error:
+        raise AIProviderError("Gemini returned invalid embedding data.") from error
+    if len(embeddings) != len(texts) or any(not vector for vector in embeddings):
+        raise AIProviderError("Gemini returned an unexpected number of embeddings.")
+    if len({len(vector) for vector in embeddings}) != 1:
+        raise AIProviderError("Gemini returned inconsistent vector dimensions.")
+    return embeddings
+
+
+async def embed_texts(texts: list[str], task_type: str = "RETRIEVAL_DOCUMENT") -> list[list[float]]:
+    if not texts:
+        return []
+    base_url, _, _ = _provider_config()
+    if _is_gemini_provider(base_url):
+        return await _embed_with_gemini(texts, task_type)
     settings = get_settings()
     response = await _post(
         "embeddings",

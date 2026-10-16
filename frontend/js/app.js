@@ -200,7 +200,7 @@ async function refreshDocuments() {
   const indexedCount = documents.filter((document) => document.index_status === "indexed").length;
   workspaceNotice.textContent = indexedCount
     ? `${indexedCount} document${indexedCount === 1 ? "" : "s"} ready to search. Ask a question below.`
-    : "Upload a text-based PDF to get started. Add your AI provider settings in .env to enable indexing and answers.";
+    : "Upload a text-based PDF to get started. We'll index its text and search relevant passages for your questions.";
 }
 
 function clearChat() {

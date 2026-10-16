@@ -45,7 +45,12 @@ async def index_document(database: Session, document: Document) -> Document:
             raise ValueError("This PDF contains no selectable text to index.")
         embeddings = []
         for start in range(0, len(chunks), 64):
-            embeddings.extend(await embed_texts(chunks[start : start + 64]))
+            embeddings.extend(
+                await embed_texts(
+                    chunks[start : start + 64],
+                    task_type="RETRIEVAL_DOCUMENT",
+                )
+            )
         upsert_chunks(
             database,
             owner_id=document.owner_id,

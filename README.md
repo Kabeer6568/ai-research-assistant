@@ -16,12 +16,16 @@ excerpts from your own documents.
    `http://localhost:8000/docs`.
 
 The AI provider must expose the OpenAI-compatible `/embeddings` and
-`/chat/completions` endpoints. `.env.example` is configured for OpenAI. For
-another compatible provider, set `AI_BASE_URL`, `AI_CHAT_MODEL`, and
-`AI_EMBEDDING_MODEL` to values supported by that provider. A local Ollama
-server can be used with its OpenAI-compatible endpoint (commonly
-`http://localhost:11434/v1`); pull an embedding model and a chat model first,
-and leave `AI_API_KEY` empty if the local server does not require one.
+`/chat/completions` endpoints. OpenAI-compatible providers use
+`AI_BASE_URL`, `AI_CHAT_MODEL`, and `AI_EMBEDDING_MODEL`.
+
+Google Gemini uses its OpenAI-compatible endpoint for chat and Gemini's native
+batch-embedding endpoint for PDF search. Set `AI_BASE_URL` to
+`https://generativelanguage.googleapis.com/v1beta/openai/`,
+`AI_CHAT_MODEL` to a model enabled for your Google AI Studio key,
+`AI_API_KEY` to your Gemini API key, and
+`AI_GEMINI_EMBEDDING_MODEL` to `gemini-embedding-001` (or another supported
+Gemini embedding model).
 
 ## What it does
 

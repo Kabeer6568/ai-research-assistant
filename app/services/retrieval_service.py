@@ -10,7 +10,7 @@ async def retrieve_context(
     owner_id: int,
     limit: int = 5,
 ) -> list[dict[str, object]]:
-    embeddings = await embed_texts([question])
+    embeddings = await embed_texts([question], task_type="RETRIEVAL_QUERY")
     if not embeddings:
         return []
     return search_chunks(database, embeddings[0], owner_id=owner_id, limit=limit)

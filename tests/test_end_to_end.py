@@ -34,7 +34,7 @@ def register_and_login(client, email="researcher@example.com"):
 
 
 def test_upload_retrieve_chat_and_history(client, monkeypatch):
-    async def fake_embeddings(texts):
+    async def fake_embeddings(texts, task_type="RETRIEVAL_DOCUMENT"):
         return [[1.0, 0.0] for _ in texts]
 
     async def fake_completion(messages):

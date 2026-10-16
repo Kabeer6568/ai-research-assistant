@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     ai_api_key: SecretStr | None = None
     ai_chat_model: str = "gpt-4o-mini"
     ai_embedding_model: str = "text-embedding-3-small"
+    ai_gemini_embedding_model: str = "gemini-embedding-001"
     ai_timeout_seconds: int = Field(default=60, gt=0)
     frontend_origin: str = "http://localhost:8000"
 
